@@ -5,10 +5,10 @@
 #pragma comment(lib, "DbgHelp.lib") // 链接DbgHelp.lib
 
 namespace hooker {
-	std::map<void*, AllocInfo> allocs;
+    std::map<void*, AllocInfo> allocs;
     // enable默认为false
     // 保证在main函数中调用EnableHook之前，不会记录分配的内存
-	bool enable = false;
+    bool enable = false;
 
     void add_AllcInfo(void* ptr, size_t size, void* caller);
     void EnableHook();
@@ -68,33 +68,33 @@ inline void operator delete(void* ptr) noexcept {
 
 // 添加AllocInfo
 void hooker::add_AllcInfo(void* ptr, size_t size, void* caller) {
-	allocs[ptr] = AllocInfo{ptr, size, caller};
+    allocs[ptr] = AllocInfo{ptr, size, caller};
 }
 
 // 启用hook
 void hooker::EnableHook() {
-	enable = true;
+    enable = true;
 }
 
 // 禁用hook
 void hooker::DisableHook() {
-	enable = false;
+    enable = false;
 }
 
 // 检查内存泄漏
 void hooker::checkLeaks() {
-	if (allocs.empty()) {
-		printf("No memory leaks.\n");
-	} else {
-		printf("Memory leaks: {\n");
-		for (const auto& [ptr, info] : allocs) {
-			printf("  ptr=%p size=%zu caller=%s\n",
+    if (allocs.empty()) {
+        printf("No memory leaks.\n");
+    } else {
+        printf("Memory leaks: {\n");
+        for (const auto& [ptr, info] : allocs) {
+            printf("  ptr=%p size=%zu caller=%s\n",
                 info.ptr, info.size, 
                 hooker::getCallerInfo(info.caller).c_str()
             );
-		}
+        }
         printf("}\n");
-	}
+    }
 }
 
 // 初始化函数
@@ -122,12 +122,12 @@ std::string hooker::getCallerInfo(void* address) {
 }
 
 hooker::GlobalData::GlobalData() {
-	InitializeDbgHelp(); // 初始化DbgHelp
+    InitializeDbgHelp(); // 初始化DbgHelp
     EnableHook(); // 启用hook
 }
 
 hooker::GlobalData::~GlobalData() {
-	DisableHook(); // 禁用hook
-	checkLeaks(); // 检查内存泄漏
+    DisableHook(); // 禁用hook
+    checkLeaks(); // 检查内存泄漏
     SymCleanup(GetCurrentProcess()); // 清理SymInitialize
 }

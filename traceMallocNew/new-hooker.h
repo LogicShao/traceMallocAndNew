@@ -13,9 +13,9 @@
 namespace hooker {
     struct AllocInfo {
         void* ptr; // 分配的内存地址
-		size_t size; // 分配的内存大小
-		void* caller; // 调用new的位置
-	};
+        size_t size; // 分配的内存大小
+        void* caller; // 调用new的位置
+    };
 
     struct GlobalData {
         GlobalData();
