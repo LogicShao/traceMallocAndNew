@@ -17,6 +17,14 @@ namespace hooker {
 		void* caller; // 调用new的位置
 	};
 
+    struct GlobalData {
+        GlobalData();
+        ~GlobalData();
+    };
+
+    // 用于初始化全局变量
+    extern GlobalData globalData;
+
     // 用于记录new/delete的调用
     extern std::map<void*, AllocInfo> allocs;
     // 用于控制是否启用hook
@@ -30,8 +38,6 @@ namespace hooker {
     // 检查内存泄漏
     void checkLeaks();
 
-    // 用于判断是否初始化
-    extern bool DbgisInitialized;
     // 初始化函数
     void InitializeDbgHelp();
     // 用于转化函数地址为代码位置

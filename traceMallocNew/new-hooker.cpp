@@ -15,9 +15,14 @@ namespace hooker {
     void DisableHook();
     void checkLeaks();
 
-    bool DbgisInitialized = false;
     void InitializeDbgHelp();
     std::string getCallerInfo(void* caller);
+
+    // 初始化全局变量
+    // 保证在main函数开始之前初始化
+    // 保证在main函数结束之后检查内存泄漏
+    // 需要在main函数前最后一个声明
+    GlobalData globalData;
 }
 
 // 使用inline避免链接时的多重定义问题
@@ -102,11 +107,6 @@ void hooker::InitializeDbgHelp() {
 
 // 用于转化函数地址为代码位置
 std::string hooker::getCallerInfo(void* address) {
-    if (hooker::DbgisInitialized == false) {
-		hooker::InitializeDbgHelp();
-		hooker::DbgisInitialized = true;
-	}
-
     DWORD64 displacement = 0;
     char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME];
     PSYMBOL_INFO symbol = (PSYMBOL_INFO)buffer;
@@ -119,4 +119,15 @@ std::string hooker::getCallerInfo(void* address) {
     else {
         return "Unknown function";
     }
+}
+
+hooker::GlobalData::GlobalData() {
+	InitializeDbgHelp(); // 初始化DbgHelp
+    EnableHook(); // 启用hook
+}
+
+hooker::GlobalData::~GlobalData() {
+	DisableHook(); // 禁用hook
+	checkLeaks(); // 检查内存泄漏
+    SymCleanup(GetCurrentProcess()); // 清理SymInitialize
 }
