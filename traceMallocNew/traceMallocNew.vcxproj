@@ -120,6 +120,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -129,8 +131,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="new-hooker.cpp" />
-    <ClCompile Include="new-hooker.h" />
+    <ClCompile Include="AllocHooker.h" />
+    <ClCompile Include="Global_Info.cpp" />
+    <ClCompile Include="Global_Info.h" />
     <ClCompile Include="testHooker.cpp" />
   </ItemGroup>
   <ItemGroup>

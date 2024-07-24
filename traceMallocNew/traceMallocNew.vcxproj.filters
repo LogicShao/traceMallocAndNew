@@ -15,13 +15,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="new-hooker.h">
+    <ClCompile Include="Global_Info.h">
       <Filter>头文件</Filter>
     </ClCompile>
     <ClCompile Include="testHooker.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="new-hooker.cpp">
+    <ClCompile Include="AllocHooker.h">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Global_Info.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

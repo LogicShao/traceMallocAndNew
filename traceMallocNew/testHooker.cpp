@@ -1,15 +1,14 @@
 #include <iostream>
-#include "new-hooker.h"
-
-static char* newtest() {
-    char* p = new char;
-    return p;
-}
+#include <vector>
+#include <format>
+#include "AllocHooker.h"
 
 int main() {
-    int* p1 = new int;
-    short* p2 = new short;
-    char* p3 = newtest();
-    delete p1;
+    std::vector<int> vec;
+
+    for (int i = 0; i < 10; i++) {
+        vec.push_back(i);
+    }
+
     return 0;
 }
