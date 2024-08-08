@@ -1,3 +1,6 @@
+#ifndef ALLOC_HOOKER_H
+#define ALLOC_HOOKER_H
+
 #include "Global_Info.h"
 
 // 使用inline避免链接时的多重定义问题
@@ -65,7 +68,7 @@ inline void* operator new[](size_t size, const std::nothrow_t&) noexcept {
     return ptr;
 }
 
-inline void __cdecl operator delete(void* ptr) noexcept {
+inline void operator delete(void* ptr) noexcept {
     Global_Info::EnableGuard guard;
     if (guard) {
         Global_Info::globalData.onDeallocate(
@@ -75,7 +78,7 @@ inline void __cdecl operator delete(void* ptr) noexcept {
     }
 }
 
-inline void __cdecl operator delete[](void* ptr) noexcept {
+inline void operator delete[](void* ptr) noexcept {
     Global_Info::EnableGuard guard;
     if (guard) {
         Global_Info::globalData.onDeallocate(
@@ -85,7 +88,7 @@ inline void __cdecl operator delete[](void* ptr) noexcept {
     }
 }
 
-inline void __cdecl operator delete(void* ptr, const std::nothrow_t&) noexcept {
+inline void operator delete(void* ptr, const std::nothrow_t&) noexcept {
     Global_Info::EnableGuard guard;
     if (guard) {
         Global_Info::globalData.onDeallocate(
@@ -95,7 +98,7 @@ inline void __cdecl operator delete(void* ptr, const std::nothrow_t&) noexcept {
     }
 }
 
-inline void __cdecl operator delete[](void* ptr, const std::nothrow_t&) noexcept {
+inline void operator delete[](void* ptr, const std::nothrow_t&) noexcept {
     Global_Info::EnableGuard guard;
     if (guard) {
         Global_Info::globalData.onDeallocate(
@@ -104,3 +107,6 @@ inline void __cdecl operator delete[](void* ptr, const std::nothrow_t&) noexcept
         );
     }
 }
+
+#undef ALLOC_HOOKER_H
+#endif // !ALLOC_HOOKER_H

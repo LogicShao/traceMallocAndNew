@@ -1,6 +1,5 @@
-#ifndef OPERATOR_NEW_HOOKER_CPP
-#define OPERATOR_NEW_HOOKER_CPP
-#endif
+#ifndef OPERATOR_NEW_HOOKER_H
+#define OPERATOR_NEW_HOOKER_H
 
 #include <cstddef>
 #include <cstdio>
@@ -86,4 +85,5 @@ namespace Global_Info {
     extern bool enable;
 }
 
-#undef OPERATOR_NEW_HOOKER_CPP
+#undef OPERATOR_NEW_HOOKER_H
+#endif
