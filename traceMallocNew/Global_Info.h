@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
+#include <chrono>
 #include <intrin.h> // 包含_ReturnAddress
 #include <map>
 #include <new> // 包含标准的new头文件
@@ -53,36 +54,43 @@ namespace Global_Info {
         explicit operator bool() const;
     };
 
-    struct GlobalData {
-        GlobalData();
-        ~GlobalData();
+    class GlobalData { // 单例模式
+    public:
+        GlobalData(GlobalData &) = delete; // 禁用拷贝构造函数
+        GlobalData& operator=(GlobalData const&) = delete; // 禁用赋值构造函数
+
+        static GlobalData& getInstance(); // 获取实例
+        bool getEnable() const; // 获取hook状态
+    
+        void EnableHook(); // 启用hook
+        void DisableHook(); // 禁用hook
+
         // 用于记录new/delete的调用
-        void onAllocate(alloc_op, void*, size_t, void*);
-        void onDeallocate(alloc_op, void*, void*);
+        bool add_AllcInfo(alloc_op, void*, size_t, void*);
+        void onAllocate(alloc_op, void*, size_t, void*); // 分配内存时调用
+        void onDeallocate(alloc_op, void*, void*); // 释放内存时调用
+
+    private:
+        std::map<void*, AllocInfo> allocs; // 用于记录分配的内存
+        bool enable = false; // 是否启用hook
+
+        GlobalData(); // 防止外部调用构造函数
+        ~GlobalData(); // 防止外部调用析构函数
+
+        // 检查内存泄漏
+        void checkLeaks();
     };
 
-    // 添加AllocInfo
-    bool add_AllcInfo(alloc_op, void*, size_t, void*);
-    // 启用hook
-    void EnableHook();
-    // 禁用hook
-    void DisableHook();
-    // 检查内存泄漏
-    void checkLeaks();
+    // 获取全局数据实例
+    GlobalData& getGD();
+
     // 检查allocs是匹配
     bool checkAllocsMatch(alloc_op, alloc_op);
 
-    // 初始化函数
+    // 初始化DbgHelp用于获取CallerInfo
     void InitializeDbgHelp();
     // 用于转化函数地址为代码位置
     std::string getCallerInfo(void*);
-
-    // 用于初始化全局变量
-    extern GlobalData globalData;
-    // 用于记录new/delete的调用
-    extern std::map<void*, AllocInfo> allocs;
-    // 用于控制是否启用hook
-    extern bool enable;
 }
 
 #undef OPERATOR_NEW_HOOKER_H

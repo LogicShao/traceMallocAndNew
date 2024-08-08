@@ -13,7 +13,7 @@ inline void* operator new(size_t size) {
 
     Global_Info::EnableGuard guard;
     if (guard) {
-        Global_Info::globalData.onAllocate(
+        Global_Info::getGD().onAllocate(
             Global_Info::alloc_op::New,
             ptr, size, _ReturnAddress()
         );
@@ -31,7 +31,7 @@ inline void* operator new[](size_t size) {
 
     Global_Info::EnableGuard guard;
     if (guard) {
-        Global_Info::globalData.onAllocate(
+        Global_Info::getGD().onAllocate(
             Global_Info::alloc_op::New_Array,
             ptr, size, _ReturnAddress()
         );
@@ -45,7 +45,7 @@ inline void* operator new(size_t size, const std::nothrow_t&) noexcept {
     // 没有抛出异常的版本，分配失败返回nullptr
     Global_Info::EnableGuard guard;
     if (guard) {
-        Global_Info::globalData.onAllocate(
+        Global_Info::getGD().onAllocate(
             Global_Info::alloc_op::New,
             ptr, size, _ReturnAddress()
         );
@@ -59,7 +59,7 @@ inline void* operator new[](size_t size, const std::nothrow_t&) noexcept {
 
     Global_Info::EnableGuard guard;
     if (guard) {
-        Global_Info::globalData.onAllocate(
+        Global_Info::getGD().onAllocate(
             Global_Info::alloc_op::New_Array,
             ptr, size, _ReturnAddress()
         );
@@ -71,7 +71,7 @@ inline void* operator new[](size_t size, const std::nothrow_t&) noexcept {
 inline void operator delete(void* ptr) noexcept {
     Global_Info::EnableGuard guard;
     if (guard) {
-        Global_Info::globalData.onDeallocate(
+        Global_Info::getGD().onDeallocate(
             Global_Info::alloc_op::Delete,
             ptr, _ReturnAddress()
         );
@@ -81,7 +81,7 @@ inline void operator delete(void* ptr) noexcept {
 inline void operator delete[](void* ptr) noexcept {
     Global_Info::EnableGuard guard;
     if (guard) {
-        Global_Info::globalData.onDeallocate(
+        Global_Info::getGD().onDeallocate(
             Global_Info::alloc_op::Delete_Array,
             ptr, _ReturnAddress()
         );
@@ -91,7 +91,7 @@ inline void operator delete[](void* ptr) noexcept {
 inline void operator delete(void* ptr, const std::nothrow_t&) noexcept {
     Global_Info::EnableGuard guard;
     if (guard) {
-        Global_Info::globalData.onDeallocate(
+        Global_Info::getGD().onDeallocate(
             Global_Info::alloc_op::Delete,
             ptr, _ReturnAddress()
         );
@@ -101,7 +101,7 @@ inline void operator delete(void* ptr, const std::nothrow_t&) noexcept {
 inline void operator delete[](void* ptr, const std::nothrow_t&) noexcept {
     Global_Info::EnableGuard guard;
     if (guard) {
-        Global_Info::globalData.onDeallocate(
+        Global_Info::getGD().onDeallocate(
             Global_Info::alloc_op::Delete_Array,
             ptr, _ReturnAddress()
         );
@@ -109,4 +109,4 @@ inline void operator delete[](void* ptr, const std::nothrow_t&) noexcept {
 }
 
 #undef ALLOC_HOOKER_H
-#endif // !ALLOC_HOOKER_H
+#endif

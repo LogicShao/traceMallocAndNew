@@ -1,51 +1,61 @@
 #include "Global_Info.h"
 
-namespace Global_Info {
-    std::map<void*, AllocInfo> allocs;
-    GlobalData globalData;
-    bool enable = false;
-}
+namespace GI = Global_Info;
 
-Global_Info::GlobalData::GlobalData() {
+GI::GlobalData::GlobalData() {
     InitializeDbgHelp(); // 初始化DbgHelp
     EnableHook(); // 启用hook
 }
 
-Global_Info::GlobalData::~GlobalData() {
+GI::GlobalData::~GlobalData() {
     DisableHook(); // 禁用hook
     checkLeaks(); // 检查内存泄漏
     SymCleanup(GetCurrentProcess()); // 清理SymInitialize
 }
 
+GI::GlobalData& GI::GlobalData::getInstance() {
+    static GlobalData instance;
+    return instance;
+}
+
+GI::GlobalData& GI::getGD() {
+    return GI::GlobalData::getInstance();
+}
+
+bool GI::GlobalData::getEnable() const {
+    return enable;
+}
+
 // 用于检查allocs是否匹配
-bool Global_Info::checkAllocsMatch(alloc_op op1, alloc_op op2) {
-    return (static_cast<int>(op1) ^ 1) == static_cast<int>(op2);
+bool GI::checkAllocsMatch(alloc_op op1, alloc_op op2) {
+    return (static_cast<size_t>(op1) ^ 1) == static_cast<size_t>(op2);
 }
 
 // 添加AllocInfo
-bool Global_Info::add_AllcInfo(
+bool GI::GlobalData::add_AllcInfo(
     alloc_op op,
     void* ptr,
     size_t size,
     void* caller
 ) {
-    return allocs.emplace(
-        ptr, AllocInfo{ op, ptr, size, caller}
+    return allocs.try_emplace(
+        ptr,
+        op, ptr, size, caller
     ).second;
 }
 
 // 启用hook
-void Global_Info::EnableHook() {
+void GI::GlobalData::EnableHook() {
     enable = true;
 }
 
 // 禁用hook
-void Global_Info::DisableHook() {
+void GI::GlobalData::DisableHook() {
     enable = false;
 }
 
 // 检查内存泄漏
-void Global_Info::checkLeaks() {
+void GI::GlobalData::checkLeaks() {
     if (allocs.empty()) {
         printf("No memory leaks.\n");
     }
@@ -54,7 +64,7 @@ void Global_Info::checkLeaks() {
         for (const auto& [ptr, info] : allocs) {
             printf("  ptr=%p size=%zu caller=%s\n",
                 info.ptr, info.size,
-                Global_Info::getCallerInfo(info.caller).c_str()
+                GI::getCallerInfo(info.caller).c_str()
             );
         }
         printf("}\n");
@@ -62,7 +72,7 @@ void Global_Info::checkLeaks() {
 }
 
 // 初始化函数
-void Global_Info::InitializeDbgHelp() {
+void GI::InitializeDbgHelp() {
     SymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS);
     if (!SymInitialize(GetCurrentProcess(), NULL, TRUE)) {
         printf("SymInitialize failed with error %lu\n", GetLastError());
@@ -70,7 +80,7 @@ void Global_Info::InitializeDbgHelp() {
 }
 
 // 用于转化函数地址为代码位置
-std::string Global_Info::getCallerInfo(void* address) {
+std::string GI::getCallerInfo(void* address) {
     DWORD64 displacement = 0;
     char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME];
     PSYMBOL_INFO symbol = (PSYMBOL_INFO)buffer;
@@ -85,19 +95,24 @@ std::string Global_Info::getCallerInfo(void* address) {
     }
 }
 
-Global_Info::EnableGuard::EnableGuard() {
-    was_enable = std::exchange(Global_Info::enable, false);
+GI::EnableGuard::EnableGuard() {
+    was_enable = getGD().getEnable(); // 获取原来的hook状态
+    if (was_enable) {
+        getGD().DisableHook(); // 禁用hook
+    }
 }
 
-Global_Info::EnableGuard::~EnableGuard() {
-    Global_Info::enable = was_enable;
+GI::EnableGuard::~EnableGuard() {
+    if (was_enable) {
+        getGD().EnableHook(); // 启用hook
+    }
 }
 
-Global_Info::EnableGuard::operator bool() const {
+GI::EnableGuard::operator bool() const {
     return was_enable;
 }
 
-void Global_Info::GlobalData::onAllocate(
+void GI::GlobalData::onAllocate(
     alloc_op op,
     void* ptr,
     size_t size,
@@ -123,7 +138,7 @@ void Global_Info::GlobalData::onAllocate(
     printf("The same memory address is assigned multiple times: ptr=%p\n", ptr);
 }
 
-void Global_Info::GlobalData::onDeallocate(
+void GI::GlobalData::onDeallocate(
     alloc_op op,
     void* ptr,
     void* caller
