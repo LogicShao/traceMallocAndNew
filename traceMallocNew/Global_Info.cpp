@@ -1,6 +1,8 @@
 #include "Global_Info.h"
 
-namespace GI = Global_Info;
+namespace Global_Info {
+    GlobalData global; // 全局变量
+}
 
 GI::GlobalData::GlobalData() {
     InitializeDbgHelp(); // 初始化DbgHelp
@@ -11,15 +13,6 @@ GI::GlobalData::~GlobalData() {
     DisableHook(); // 禁用hook
     checkLeaks(); // 检查内存泄漏
     SymCleanup(GetCurrentProcess()); // 清理SymInitialize
-}
-
-GI::GlobalData& GI::GlobalData::getInstance() {
-    static GlobalData instance;
-    return instance;
-}
-
-GI::GlobalData& GI::getGD() {
-    return GI::GlobalData::getInstance();
 }
 
 bool GI::GlobalData::getEnable() const {
@@ -96,15 +89,15 @@ std::string GI::getCallerInfo(void* address) {
 }
 
 GI::EnableGuard::EnableGuard() {
-    was_enable = getGD().getEnable(); // 获取原来的hook状态
+    was_enable = global.getEnable(); // 获取原来的hook状态
     if (was_enable) {
-        getGD().DisableHook(); // 禁用hook
+        global.DisableHook(); // 禁用hook
     }
 }
 
 GI::EnableGuard::~EnableGuard() {
     if (was_enable) {
-        getGD().EnableHook(); // 启用hook
+        global.EnableHook(); // 启用hook
     }
 }
 

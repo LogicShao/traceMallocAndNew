@@ -54,14 +54,14 @@ namespace Global_Info {
         explicit operator bool() const;
     };
 
-    class GlobalData { // 单例模式
-    public:
-        GlobalData(GlobalData &) = delete; // 禁用拷贝构造函数
-        GlobalData& operator=(GlobalData const&) = delete; // 禁用赋值构造函数
+    struct GlobalData {
+        std::map<void*, AllocInfo> allocs; // 用于记录分配的内存
+        bool enable = false; // 是否启用hook
 
-        static GlobalData& getInstance(); // 获取实例
+        GlobalData(); // 防止外部调用构造函数
+        ~GlobalData(); // 防止外部调用析构函数
+
         bool getEnable() const; // 获取hook状态
-    
         void EnableHook(); // 启用hook
         void DisableHook(); // 禁用hook
 
@@ -70,19 +70,11 @@ namespace Global_Info {
         void onAllocate(alloc_op, void*, size_t, void*); // 分配内存时调用
         void onDeallocate(alloc_op, void*, void*); // 释放内存时调用
 
-    private:
-        std::map<void*, AllocInfo> allocs; // 用于记录分配的内存
-        bool enable = false; // 是否启用hook
-
-        GlobalData(); // 防止外部调用构造函数
-        ~GlobalData(); // 防止外部调用析构函数
-
         // 检查内存泄漏
         void checkLeaks();
     };
 
-    // 获取全局数据实例
-    GlobalData& getGD();
+    extern GlobalData global; // 全局变量
 
     // 检查allocs是匹配
     bool checkAllocsMatch(alloc_op, alloc_op);
@@ -92,6 +84,8 @@ namespace Global_Info {
     // 用于转化函数地址为代码位置
     std::string getCallerInfo(void*);
 }
+
+namespace GI = Global_Info;
 
 #undef OPERATOR_NEW_HOOKER_H
 #endif
