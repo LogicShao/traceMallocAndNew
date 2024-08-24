@@ -21,10 +21,10 @@
     <ClCompile Include="testHooker.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="AllocHooker.h">
-      <Filter>头文件</Filter>
-    </ClCompile>
     <ClCompile Include="Global_Info.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="AllocHooker.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,5 +32,10 @@
     <None Include="..\README.md">
       <Filter>资源文件</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="allocs.log">
+      <Filter>资源文件</Filter>
+    </Text>
   </ItemGroup>
 </Project>

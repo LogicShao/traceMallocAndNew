@@ -131,13 +131,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AllocHooker.h" />
+    <ClCompile Include="AllocHooker.cpp" />
     <ClCompile Include="Global_Info.cpp" />
     <ClCompile Include="Global_Info.h" />
     <ClCompile Include="testHooker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="allocs.log" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

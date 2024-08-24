@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <format>
-#include "AllocHooker.h"
 
 int main() {
     std::vector<int> vec;

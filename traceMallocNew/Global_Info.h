@@ -7,6 +7,8 @@
 #include <chrono>
 #include <intrin.h> // 包含_ReturnAddress
 #include <map>
+#include <iostream>
+#include <queue>
 #include <new> // 包含标准的new头文件
 #include <string> 
 #include <Windows.h>
@@ -56,22 +58,24 @@ namespace Global_Info {
 
     struct GlobalData {
         std::map<void*, AllocInfo> allocs; // 用于记录分配的内存
+        std::queue<std::pair<time_t, AllocInfo>> actions; // 用于记录成功分配的时间
         bool enable = false; // 是否启用hook
 
-        GlobalData(); // 防止外部调用构造函数
-        ~GlobalData(); // 防止外部调用析构函数
+        GlobalData();
+        ~GlobalData();
 
         bool getEnable() const; // 获取hook状态
         void EnableHook(); // 启用hook
         void DisableHook(); // 禁用hook
 
-        // 用于记录new/delete的调用
-        bool add_AllcInfo(alloc_op, void*, size_t, void*);
+        bool add_AllcInfo(alloc_op, void*, size_t, void*); // 用于记录new/delete的调用
+        void add_Action(alloc_op, void*, size_t, void*); // 用于记录分配的时间
+
         void onAllocate(alloc_op, void*, size_t, void*); // 分配内存时调用
         void onDeallocate(alloc_op, void*, void*); // 释放内存时调用
 
-        // 检查内存泄漏
-        void checkLeaks();
+        void checkLeaks(); // 检查内存泄漏
+        void outActions(); // 输出分配的内存
     };
 
     extern GlobalData global; // 全局变量

@@ -12,6 +12,7 @@ GI::GlobalData::GlobalData() {
 GI::GlobalData::~GlobalData() {
     DisableHook(); // 禁用hook
     checkLeaks(); // 检查内存泄漏
+    outActions(); // 输出分配的内存
     SymCleanup(GetCurrentProcess()); // 清理SymInitialize
 }
 
@@ -35,6 +36,21 @@ bool GI::GlobalData::add_AllcInfo(
         ptr,
         op, ptr, size, caller
     ).second;
+}
+
+void GI::GlobalData::add_Action(
+    alloc_op op,
+    void* ptr,
+    size_t size,
+    void* caller
+) {
+    time_t now = std::chrono::system_clock::to_time_t(
+        std::chrono::system_clock::now()
+    );
+
+    actions.emplace(now, AllocInfo{
+        op, ptr, size, caller
+    });
 }
 
 // 启用hook
@@ -62,6 +78,25 @@ void GI::GlobalData::checkLeaks() {
         }
         printf("}\n");
     }
+}
+
+// 输出分配的内存
+void GI::GlobalData::outActions() {
+    FILE* file = nullptr;
+
+    if (fopen_s(&file, "allocs.log", "w") != 0) {
+        throw std::runtime_error("Failed to open file allocs.log");
+    }
+
+    while (not actions.empty()) {
+        auto [time, info] = actions.front();
+        fprintf(file, "%s [ptr=%p size=%zu]\n",
+            alloc_op_str[static_cast<size_t>(info.op)],
+            info.ptr, info.size
+        );
+        actions.pop();
+    }
+    fclose(file);
 }
 
 // 初始化函数
@@ -121,6 +156,7 @@ void GI::GlobalData::onAllocate(
     }
     // 处理分配成功的情况
     if (add_AllcInfo(op, ptr, size, caller)) {
+        add_Action(op, ptr, size, caller);
         printf("%s [ptr=%p size=%zu caller=%s]\n",
             alloc_op_str[static_cast<size_t>(op)],
             ptr, size, getCallerInfo(caller).c_str()
@@ -162,6 +198,8 @@ void GI::GlobalData::onDeallocate(
     }
 
     // 处理正常删除的情况
+    add_Action(op, ptr, allocs[ptr].size, caller);
+
     allocs.erase(ptr);
     printf("%s [ptr=%p caller=%s]\n",
         alloc_op_str[static_cast<size_t>(op)], ptr,
