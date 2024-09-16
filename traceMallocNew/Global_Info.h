@@ -13,6 +13,7 @@
 #include <string> 
 #include <Windows.h>
 #include <DbgHelp.h> // DbgHelp头文件必须在Windows.h之后
+#include "nanosvg.h" // 用于生成SVG
 
 #pragma comment(lib, "DbgHelp.lib") // 链接DbgHelp.lib
 
@@ -56,9 +57,15 @@ namespace Global_Info {
         explicit operator bool() const;
     };
 
+    struct Lifeline {
+		void* ptr; // 分配的内存地址
+		time_t start; // 分配的时间
+		time_t end; // 释放的时间
+    };
+
     struct GlobalData {
         std::map<void*, AllocInfo> allocs; // 用于记录分配的内存
-        std::queue<std::pair<time_t, AllocInfo>> actions; // 用于记录成功分配的时间
+		std::vector<Lifeline> lifelines; // 用于记录分配的时间
         bool enable = false; // 是否启用hook
 
         GlobalData();
@@ -76,6 +83,8 @@ namespace Global_Info {
 
         void checkLeaks(); // 检查内存泄漏
         void outActions(); // 输出分配的内存
+
+        void generateSVG(); // 生成SVG
     };
 
     extern GlobalData global; // 全局变量

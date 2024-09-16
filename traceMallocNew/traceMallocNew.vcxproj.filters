@@ -38,4 +38,12 @@
       <Filter>资源文件</Filter>
     </Text>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\nanosvg\nanosvg\src\nanosvg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\nanosvg\nanosvg\src\nanosvgrast.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

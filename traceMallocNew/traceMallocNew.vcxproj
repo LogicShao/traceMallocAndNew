@@ -142,6 +142,10 @@
   <ItemGroup>
     <Text Include="allocs.log" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\nanosvg\nanosvg\src\nanosvg.h" />
+    <ClInclude Include="..\..\nanosvg\nanosvg\src\nanosvgrast.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
